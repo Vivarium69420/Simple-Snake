@@ -27,7 +27,8 @@ class Food:
 
 
 class Snake:
-    def __init__(self, parent_screen, length):
+    def __init__(self, parent_screen, length, direction):
+        self.direction = direction
         self.length = length
         self.parent_screen = parent_screen
         self.block = pygame.image.load("resources/texture/block.jpg").convert()
@@ -48,13 +49,13 @@ class Snake:
         pygame.display.flip()
 
     def move(self, direc):
-        if direc == 'up':
+        if direc == 'up' and self.direction != 'down':
             self.direction = 'up'
-        if direc == 'down':
+        if direc == 'down' and self.direction != 'up':
             self.direction = 'down'
-        if direc == 'left':
+        if direc == 'left' and self.direction != 'right':
             self.direction = 'left'
-        if direc == 'right':
+        if direc == 'right' and self.direction != 'left':
             self.direction = 'right'
 
     def slither(self):
@@ -87,7 +88,7 @@ class Game:
         pygame.init()  # turn all of pygame on.
         self.surface = pygame.display.set_mode((1000, 500))
         self.surface.fill(SURFACE)
-        self.snake = Snake(self.surface, 1)
+        self.snake = Snake(self.surface, 1, 'down')
         self.food = Food(self.surface)
         # The two draw of snake and food are different, since one is an arr, but the other is just an int
         self.snake.draw()
@@ -109,7 +110,7 @@ class Game:
 
     def reset(self):
         self.surface.fill(SURFACE)
-        self.snake = Snake(self.surface, 1)
+        self.snake = Snake(self.surface, 1, 'down')
         self.food = Food(self.surface)
 
     def play(self):
@@ -123,7 +124,7 @@ class Game:
             self.food.move()
 
         # collision with body
-        for i in range(1, self.snake.length):
+        for i in range(3, self.snake.length):
             if is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i]):
                 raise "Collision Occurred"  # to raise an exception
 

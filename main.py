@@ -118,10 +118,14 @@ class Game:
         self.food.draw()  # apple need to draw or else it will be clear by slither
         self.score_count()
         pygame.display.flip()
+
         # collision with apple
         if is_collision(self.snake.x[0], self.snake.y[0], self.food.x, self.food.y):
-            self.snake.increase_length()
             self.food.move()
+            for i in range(self.snake.length):
+                while self.food.x == self.snake.x[i] and self.food.y == self.snake.y[i]:
+                    self.food.move()
+            self.snake.increase_length()
 
         # collision with body
         for i in range(3, self.snake.length):

@@ -10,21 +10,23 @@ But in this version, will have a lot more features that may excite players.
     - Able to eat his own body.
     - etc.
 - Challenges (coming-soon)
-    - Increase snake speed.
-    - Reverse control.
-    - Flashing screen.
+    - Increase snake speed. (Cherry)
+    - Reverse control. (Banana)
+    - Flash-bang. (Fig)
     - etc.
 - Secret endings (coming-soon)
 ---
 ## Setup
-Just run the source code you should be fine.
+Just run the code it should be fine
+
 ---
 ## Community contributions
 It would be nice if I can get some help since I'm just a beginner. You can clone or fork the project.
 If you found an issue or would like to submit an improvement to this project, please help yourself I would be glad.
 ---
 ## Current problems
-I'm having difficulty with setting up the sound with pygame. At the beginning and end of the audio, there is this weird static noise.
+- I'm having difficulty with setting up the sound with pygame. At the beginning and end of the audio, there is this weird static noise.
+- When trying to spawn other fruits using USEREVENTS during the run of the game. When the event terminate, and reset, so does the fruit. I haven't figure out how to allow the fruits to stay drawn on screen. 
 ---
 ## Repository Info
 - main.py: is where all the magic happened, the main source code.

@@ -9,21 +9,38 @@ SURFACE = (22, 15, 45)
 DELAY = 0.2
 
 
-class Food:
+class Apple:
     def __init__(self, parent_screen):
-        self.image = pygame.image.load("resources/texture/Food.jpg").convert()
+        self.image = pygame.image.load("resources/texture/apple.jpg").convert()
         self.parent_screen = parent_screen
         self.x = SIZE*3
         self.y = SIZE*3
 
     def draw(self):
         self.parent_screen.blit(self.image, (self.x, self.y))
-        pygame.display.flip()
+        pygame.display.update()
 
-    def move(self):
-        # The window size is (1000, 500)/50 = (20, 10) and given we count from 0 -> (20-1, 10-1) = (19,9) positions
-        self.x = random.randint(0, 19)*SIZE
-        self.y = random.randint(0, 9)*SIZE
+    def set_coordinates(self, x, y):
+        self.x = x
+        self.y = y
+
+
+class SpeedBoostCherry(Apple):
+    def __init__(self, parent_screen):
+        super().__init__(parent_screen)
+        self.image = pygame.image.load("resources/texture/cherry.jpg").convert()
+
+
+class ReverseControlBanana(Apple):
+    def __init__(self, parent_screen):
+        super().__init__(parent_screen)
+        self.image = pygame.image.load("resources/texture/banana.jpg").convert()
+
+
+class FlashBangFig(Apple):
+    def __init__(self, parent_screen):
+        super().__init__(parent_screen)
+        self.image = pygame.image.load("resources/texture/fig.jpg").convert()
 
 
 class Snake:
@@ -79,7 +96,7 @@ def is_collision(x1, y1, x2, y2):  # (x1,y1) is apple cord. & (x2,y2) is the sna
     if x2 <= x1 < x2 + SIZE:
         if y2 <= y1 < y2 + SIZE:
             return True
-    return False
+        return False
 
 
 class Game:
@@ -88,11 +105,18 @@ class Game:
         pygame.init()  # turn all of pygame on.
         self.surface = pygame.display.set_mode((1000, 500))
         self.surface.fill(SURFACE)
-        self.snake = Snake(self.surface, 1, 'down')
-        self.food = Food(self.surface)
-        # The two draw of snake and food are different, since one is an arr, but the other is just an int
+        pygame.display.set_caption("Simple Snake")
+
+        # init all fruits and the snake
+        self.snake = Snake(self.surface, 5, 'down')
+        self.apple = Apple(self.surface)
+        self.cherry = SpeedBoostCherry(self.surface)
+        self.fig = FlashBangFig(self.surface)
+        self.banana = ReverseControlBanana(self.surface)
+
+        # The two draw of snake and Apple are different, since one is an arr, but the other is just an int
         self.snake.draw()
-        self.food.draw()
+        self.apple.draw()
 
     def game_over(self):
         self.surface.fill(SURFACE)
@@ -108,23 +132,40 @@ class Game:
         score = font.render(f"Score: {self.snake.length}", True, (255, 255, 255))
         self.surface.blit(score, (800, 10))
 
+    def spawn(self, r):
+        x = random.randint(0, 19) * SIZE
+        y = random.randint(0, 9) * SIZE
+        for i in range(self.snake.length):
+            while x == self.snake.x[i] and y == self.snake.y[i]:
+                x = random.randint(0, 19) * SIZE
+                y = random.randint(0, 9) * SIZE
+        if r == 0:
+            self.cherry.set_coordinates(x, y)
+            self.cherry.draw()
+        elif r == 1:
+            self.banana.set_coordinates(x, y)
+            self.banana.draw()
+        elif r == 2:
+            self.fig.set_coordinates(x, y)
+            self.fig.draw()
+        else:
+            self.apple.set_coordinates(x, y)
+            self.apple.draw()
+
     def reset(self):
         self.surface.fill(SURFACE)
         self.snake = Snake(self.surface, 1, 'down')
-        self.food = Food(self.surface)
+        self.apple = Apple(self.surface)
 
     def play(self):
         self.snake.slither()
-        self.food.draw()  # apple need to draw or else it will be clear by slither
+        self.apple.draw()  # apple need to draw or else it will be clear by slither
         self.score_count()
         pygame.display.flip()
 
         # collision with apple
-        if is_collision(self.snake.x[0], self.snake.y[0], self.food.x, self.food.y):
-            self.food.move()
-            for i in range(self.snake.length):
-                while self.food.x == self.snake.x[i] and self.food.y == self.snake.y[i]:
-                    self.food.move()
+        if is_collision(self.snake.x[0], self.snake.y[0], self.apple.x, self.apple.y):
+            self.spawn(10)
             self.snake.increase_length()
 
         # collision with body
@@ -133,6 +174,8 @@ class Game:
                 raise "Collision Occurred"  # to raise an exception
 
     def run(self):
+        FRUITS = pygame.USEREVENT+1
+        pygame.time.set_timer(FRUITS, 4)
         pause = False
         running = True
         while running:  # Loop for interactive UI
@@ -151,9 +194,13 @@ class Game:
                             self.snake.move('left')
                         if event.key == K_RIGHT:
                             self.snake.move('right')
-
+                if event.type == FRUITS:
+                    if not pause:
+                        r = random.randint(0, 2)
+                        self.spawn(r)
                 elif event.type == QUIT:
                     running = False
+
             try:
                 if not pause:
                     self.play()

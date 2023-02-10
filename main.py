@@ -48,7 +48,7 @@ class Snake:
         self.direction = direction
         self.length = length
         self.parent_screen = parent_screen
-        self.block = pygame.image.load("resources/texture/block.jpg").convert()
+        self.snake = pygame.image.load("resources/texture/snake.jpg").convert()
         self.x = [SIZE]*length  # create an array with the length
         self.y = [SIZE]*length
         self.direction = 'down'
@@ -62,7 +62,7 @@ class Snake:
     def draw(self):
         self.parent_screen.fill(SURFACE)
         for i in range(self.length):
-            self.parent_screen.blit(self.block, (self.x[i], self.y[i]))
+            self.parent_screen.blit(self.snake, (self.x[i], self.y[i]))
         pygame.display.flip()
 
     def move(self, direc):
@@ -104,7 +104,6 @@ class Game:
         # remember to init
         pygame.init()  # turn all of pygame on.
         self.surface = pygame.display.set_mode((1000, 500))
-        self.surface.fill(SURFACE)
         pygame.display.set_caption("Simple Snake")
 
         # init all fruits and the snake
@@ -113,10 +112,14 @@ class Game:
         self.cherry = SpeedBoostCherry(self.surface)
         self.fig = FlashBangFig(self.surface)
         self.banana = ReverseControlBanana(self.surface)
+        self.fruits = []
 
+        bg = pygame.image.load('resources/texture/bg.jpg')
+        self.surface.blit(bg, (0, 0))
         # The two draw of snake and Apple are different, since one is an arr, but the other is just an int
         self.snake.draw()
         self.apple.draw()
+        pygame.display.update()
 
     def game_over(self):
         self.surface.fill(SURFACE)
@@ -174,8 +177,7 @@ class Game:
                 raise "Collision Occurred"  # to raise an exception
 
     def run(self):
-        FRUITS = pygame.USEREVENT+1
-        pygame.time.set_timer(FRUITS, 4)
+
         pause = False
         running = True
         while running:  # Loop for interactive UI
@@ -194,10 +196,6 @@ class Game:
                             self.snake.move('left')
                         if event.key == K_RIGHT:
                             self.snake.move('right')
-                if event.type == FRUITS:
-                    if not pause:
-                        r = random.randint(0, 2)
-                        self.spawn(r)
                 elif event.type == QUIT:
                     running = False
 
